@@ -11,8 +11,8 @@
 body{
     font-family: Arial, sans-serif;
     background:#f2f2f2;
-    padding:20px;
     margin:0;
+    padding:20px;
 }
 
 .container{
@@ -40,6 +40,7 @@ h2{
     border-radius:8px;
     cursor:pointer;
     margin-right:10px;
+    margin-bottom:10px;
     font-size:16px;
 }
 
@@ -60,6 +61,7 @@ table{
     width:100%;
     border-collapse:collapse;
     margin-top:20px;
+    margin-bottom:40px;
 }
 
 th, td{
@@ -73,6 +75,13 @@ th{
     background:#f0f0f0;
 }
 
+.sectionTitle{
+    font-size:22px;
+    font-weight:bold;
+    margin-top:40px;
+    margin-bottom:10px;
+}
+
 .paid{
     color:green;
     font-weight:bold;
@@ -80,17 +89,6 @@ th{
 
 .unpaid{
     color:red;
-    font-weight:bold;
-}
-
-.yellow{
-    background:yellow;
-}
-
-.sectionTitle{
-    margin-top:40px;
-    margin-bottom:10px;
-    font-size:22px;
     font-weight:bold;
 }
 
@@ -114,12 +112,12 @@ th{
 
     .navButtons button{
         width:100%;
-        margin-bottom:10px;
     }
 }
 
 </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -134,6 +132,10 @@ th{
 
         <button onclick="showMedicPage()">
             AJK Medic
+        </button>
+
+        <button onclick="showAJKPage()">
+            AJK
         </button>
 
     </div>
@@ -196,9 +198,21 @@ th{
 
     </div>
 
+    <!-- AJK PAGE -->
+
+    <div id="ajkPage" style="display:none;">
+
+        <div id="ajkContainer"></div>
+
+    </div>
+
 </div>
 
 <script>
+
+//
+// PARTICIPANT SEARCH
+//
 
 let csvData = [];
 
@@ -296,6 +310,10 @@ function searchData(){
     });
 }
 
+//
+// MEDIC PAGE
+//
+
 let medicData = [];
 
 fetch('medicTeam.csv')
@@ -347,16 +365,111 @@ function loadMedicTable(){
     });
 }
 
-function showMedicPage(){
+//
+// AJK PAGE
+//
 
-    document.getElementById('searchPage')
-    .style.display = 'none';
+let ajkData = [];
 
-    document.getElementById('medicPage')
-    .style.display = 'block';
+fetch('ajk.csv')
+.then(response => response.text())
+.then(data => {
 
-    loadMedicTable();
+    ajkData = parseAJKCSV(data);
+});
+
+function parseAJKCSV(data){
+
+    const lines = data.trim().split('\n');
+
+    return lines.slice(1).map(line => {
+
+        const cols = line.split(',');
+
+        return {
+
+            team     : cols[0]?.trim(),
+            no       : cols[1]?.trim(),
+            name     : cols[2]?.trim(),
+            sex      : cols[3]?.trim(),
+            kategori : cols[4]?.trim(),
+            tel      : cols[5]?.trim(),
+            catatan  : cols[6]?.trim(),
+            grup     : cols[7]?.trim()
+        };
+    });
 }
+
+function loadAJKTable(){
+
+    const container =
+        document.getElementById('ajkContainer');
+
+    container.innerHTML = '';
+
+    const grouped = {};
+
+    ajkData.forEach(row => {
+
+        if(!grouped[row.team]){
+            grouped[row.team] = [];
+        }
+
+        grouped[row.team].push(row);
+    });
+
+    for(const teamName in grouped){
+
+        const title = document.createElement('div');
+
+        title.className = 'sectionTitle';
+        title.innerText = teamName;
+
+        container.appendChild(title);
+
+        const table = document.createElement('table');
+
+        table.innerHTML = `
+            <thead>
+                <tr>
+                    <th>NO</th>
+                    <th>NAMA</th>
+                    <th>L/P</th>
+                    <th>KATEGORI</th>
+                    <th>TEL</th>
+                    <th>CATATAN</th>
+                    <th>GRUP</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        `;
+
+        const tbody = table.querySelector('tbody');
+
+        grouped[teamName].forEach(row => {
+
+            const tr = document.createElement('tr');
+
+            tr.innerHTML = `
+                <td>${row.no || ''}</td>
+                <td>${row.name || ''}</td>
+                <td>${row.sex || ''}</td>
+                <td>${row.kategori || ''}</td>
+                <td>${row.tel || ''}</td>
+                <td>${row.catatan || ''}</td>
+                <td>${row.grup || ''}</td>
+            `;
+
+            tbody.appendChild(tr);
+        });
+
+        container.appendChild(table);
+    }
+}
+
+//
+// NAVIGATION
+//
 
 function showSearchPage(){
 
@@ -365,6 +478,37 @@ function showSearchPage(){
 
     document.getElementById('medicPage')
     .style.display = 'none';
+
+    document.getElementById('ajkPage')
+    .style.display = 'none';
+}
+
+function showMedicPage(){
+
+    document.getElementById('searchPage')
+    .style.display = 'none';
+
+    document.getElementById('medicPage')
+    .style.display = 'block';
+
+    document.getElementById('ajkPage')
+    .style.display = 'none';
+
+    loadMedicTable();
+}
+
+function showAJKPage(){
+
+    document.getElementById('searchPage')
+    .style.display = 'none';
+
+    document.getElementById('medicPage')
+    .style.display = 'none';
+
+    document.getElementById('ajkPage')
+    .style.display = 'block';
+
+    loadAJKTable();
 }
 
 </script>
