@@ -111,8 +111,6 @@ fetch('data.csv')
 .then(data => {
 
     csvData = parseCSV(data);
-
-    searchData();
 });
 
 function parseCSV(data){
@@ -138,12 +136,23 @@ function searchData(){
     const keyword =
         document.getElementById('searchInput')
         .value
-        .toLowerCase();
+        .toLowerCase()
+        .trim();
+
+    const table =
+        document.getElementById('resultTable');
 
     const tbody =
         document.querySelector('#resultTable tbody');
 
     tbody.innerHTML = '';
+
+    // Hide table if empty search
+    if(keyword === ''){
+
+        table.style.display = 'none';
+        return;
+    }
 
     const filtered = csvData.filter(row =>
 
@@ -155,6 +164,9 @@ function searchData(){
         (row.name &&
          row.name.toLowerCase().includes(keyword))
     );
+
+    // Show table
+    table.style.display = 'table';
 
     filtered.forEach(row => {
 
@@ -175,6 +187,11 @@ function searchData(){
 
         tbody.appendChild(tr);
     });
+
+    // Hide table if no result
+    if(filtered.length === 0){
+        table.style.display = 'none';
+    }
 }
 
 </script>
