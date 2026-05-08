@@ -78,7 +78,17 @@
 <div class="container">
 
     <h2>2026 AY SILVER AWARD EXPEDITION Participant Search</h2>
+<div class="navButtons">
 
+    <button onclick="showSearchPage()">
+        Search Participant
+    </button>
+
+    <button onclick="showMedicPage()">
+        AJK Medic
+    </button>
+
+</div>
     <input
         type="text"
         id="searchInput"
@@ -202,7 +212,76 @@ function searchData(){
         table.style.display = 'none';
     }
 }
+let medicData = [];
 
+fetch('medicTeam.csv')
+.then(response => response.text())
+.then(data => {
+
+    medicData = parseMedicCSV(data);
+
+    loadMedicTable();
+});
+
+function parseMedicCSV(data){
+
+    const lines = data.trim().split('\n');
+
+    return lines.slice(1).map(line => {
+
+        const cols = line.split(',');
+
+        return {
+
+            name     : cols[0]?.trim(),
+            remarks  : cols[1]?.trim(),
+            role     : cols[2]?.trim(),
+            group    : cols[3]?.trim(),
+            wilayah  : cols[4]?.trim()
+        };
+    });
+}
+
+function loadMedicTable(){
+
+    const tbody =
+        document.querySelector('#medicTable tbody');
+
+    tbody.innerHTML = '';
+
+    medicData.forEach(row => {
+
+        const tr = document.createElement('tr');
+
+        tr.innerHTML = `
+            <td>${row.name || ''}</td>
+            <td>${row.remarks || ''}</td>
+            <td>${row.role || ''}</td>
+            <td>${row.group || ''}</td>
+            <td>${row.wilayah || ''}</td>
+        `;
+
+        tbody.appendChild(tr);
+    });
+}
+
+function showMedicPage(){
+
+    document.getElementById('searchPage')
+    .style.display = 'none';
+
+    document.getElementById('medicPage')
+    .style.display = 'block';
+}
+
+function showSearchPage(){
+
+    document.getElementById('searchPage')
+    .style.display = 'block';
+
+    document.getElementById('medicPage')
+    .style.display = 'none';
+}
 </script>
 
 </body>
