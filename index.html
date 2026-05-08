@@ -4,114 +4,197 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>2026 AY SILVER AWARD EXPEDITION Participant</title>
+<title>2026 AY SILVER AWARD EXPEDITION</title>
 
 <style>
+
+body{
+    font-family: Arial, sans-serif;
+    background:#f2f2f2;
+    padding:20px;
+    margin:0;
+}
+
+.container{
+    max-width:1200px;
+    margin:auto;
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+h2{
+    margin-top:0;
+}
+
+.navButtons{
+    margin-bottom:20px;
+}
+
+.navButtons button{
+    padding:12px 20px;
+    border:none;
+    background:#007bff;
+    color:white;
+    border-radius:8px;
+    cursor:pointer;
+    margin-right:10px;
+    font-size:16px;
+}
+
+.navButtons button:hover{
+    background:#0056b3;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    font-size:16px;
+    border:1px solid #ccc;
+    border-radius:8px;
+    box-sizing:border-box;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+
+th, td{
+    border:1px solid #ddd;
+    padding:8px;
+    text-align:left;
+    font-size:14px;
+}
+
+th{
+    background:#f0f0f0;
+}
+
+.paid{
+    color:green;
+    font-weight:bold;
+}
+
+.unpaid{
+    color:red;
+    font-weight:bold;
+}
+
+.yellow{
+    background:yellow;
+}
+
+.sectionTitle{
+    margin-top:40px;
+    margin-bottom:10px;
+    font-size:22px;
+    font-weight:bold;
+}
+
+@media(max-width:700px){
+
     body{
-        font-family: Arial, sans-serif;
-        background:#f2f2f2;
-        padding:20px;
+        padding:10px;
     }
 
     .container{
-        max-width:900px;
-        margin:auto;
-        background:white;
-        padding:20px;
-        border-radius:12px;
-        box-shadow:0 0 10px rgba(0,0,0,0.1);
-    }
-
-    h2{
-        margin-bottom:20px;
-    }
-
-    input{
-        width:100%;
-        padding:12px;
-        font-size:16px;
-        border:1px solid #ccc;
-        border-radius:8px;
-        box-sizing:border-box;
+        padding:15px;
     }
 
     table{
-        width:100%;
-        border-collapse:collapse;
-        margin-top:20px;
+        font-size:12px;
     }
 
     th, td{
-        border:1px solid #ddd;
-        padding:10px;
-        text-align:left;
+        padding:5px;
     }
 
-    th{
-        background:#f0f0f0;
+    .navButtons button{
+        width:100%;
+        margin-bottom:10px;
     }
+}
 
-    .paid{
-        color:green;
-        font-weight:bold;
-    }
-
-    .unpaid{
-        color:red;
-        font-weight:bold;
-    }
-
-    @media(max-width:600px){
-
-        table{
-            font-size:14px;
-        }
-
-        th, td{
-            padding:6px;
-        }
-    }
 </style>
 </head>
 <body>
 
 <div class="container">
 
-    <h2>2026 AY SILVER AWARD EXPEDITION Participant Search</h2>
-<div class="navButtons">
+    <h2>2026 AY SILVER AWARD EXPEDITION</h2>
 
-    <button onclick="showSearchPage()">
-        Search Participant
-    </button>
+    <div class="navButtons">
 
-    <button onclick="showMedicPage()">
-        AJK Medic
-    </button>
+        <button onclick="showSearchPage()">
+            Search Participant
+        </button>
 
-</div>
-    <input
-        type="text"
-        id="searchInput"
-        placeholder="Search by team or participant name..."
-        onkeyup="searchData()"
-    >
+        <button onclick="showMedicPage()">
+            AJK Medic
+        </button>
 
-    <table id="resultTable" style="display:none;">
-        <thead>
-            <tr>
-                <th>Team No</th>
-                <th>BIB</th>
-                <th>Team</th>
-                <th>Wil</th>
-                <th>Name</th>
-                <th>Sex</th>
-                <th>Paid</th>
-                <th>Remark</th>
-            </tr>
-        </thead>
+    </div>
 
-        <tbody></tbody>
-    </table>
+    <!-- SEARCH PAGE -->
+
+    <div id="searchPage">
+
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Search by team or participant name..."
+            onkeyup="searchData()"
+        >
+
+        <table id="resultTable" style="display:none;">
+
+            <thead>
+                <tr>
+                    <th>TEAM NO</th>
+                    <th>BIB</th>
+                    <th>TEAM</th>
+                    <th>WIL</th>
+                    <th>NAME</th>
+                    <th>SEX</th>
+                    <th>PAID</th>
+                    <th>REMARK</th>
+                </tr>
+            </thead>
+
+            <tbody></tbody>
+
+        </table>
+
+    </div>
+
+    <!-- MEDIC PAGE -->
+
+    <div id="medicPage" style="display:none;">
+
+        <div class="sectionTitle">
+            AJK MEDIC
+        </div>
+
+        <table id="medicTable">
+
+            <thead>
+                <tr>
+                    <th>NAME</th>
+                    <th>REMARKS</th>
+                    <th>ROLE</th>
+                    <th>GROUP</th>
+                    <th>WILAYAH</th>
+                </tr>
+            </thead>
+
+            <tbody></tbody>
+
+        </table>
+
+    </div>
 
 </div>
 
@@ -135,14 +218,15 @@ function parseCSV(data){
         const cols = line.split(',');
 
         return {
-            teamNo: cols[0]?.trim(),
-            team : cols[1]?.trim(),
-            bib  : cols[3]?.trim(),
-            wil  : cols[2]?.trim(),
-            name : cols[4]?.trim(),
-            sex  : cols[5]?.trim(),
-            rem  : cols[7]?.trim(),
-            paid : cols[8]?.trim()
+
+            teamNo : cols[0]?.trim(),
+            team   : cols[1]?.trim(),
+            wil    : cols[2]?.trim(),
+            bib    : cols[3]?.trim(),
+            name   : cols[4]?.trim(),
+            sex    : cols[5]?.trim(),
+            rem    : cols[7]?.trim(),
+            paid   : cols[8]?.trim()
         };
     });
 }
@@ -163,7 +247,6 @@ function searchData(){
 
     tbody.innerHTML = '';
 
-    // Hide table if empty search
     if(keyword === ''){
 
         table.style.display = 'none';
@@ -173,15 +256,20 @@ function searchData(){
     const filtered = csvData.filter(row =>
 
         (row.team &&
-         row.team.toLowerCase().includes(keyword))
+        row.team.toLowerCase().includes(keyword))
 
-         ||
+        ||
 
         (row.name &&
-         row.name.toLowerCase().includes(keyword))
+        row.name.toLowerCase().includes(keyword))
     );
 
-    // Show table
+    if(filtered.length === 0){
+
+        table.style.display = 'none';
+        return;
+    }
+
     table.style.display = 'table';
 
     filtered.forEach(row => {
@@ -206,12 +294,8 @@ function searchData(){
 
         tbody.appendChild(tr);
     });
-
-    // Hide table if no result
-    if(filtered.length === 0){
-        table.style.display = 'none';
-    }
 }
+
 let medicData = [];
 
 fetch('medicTeam.csv')
@@ -219,8 +303,6 @@ fetch('medicTeam.csv')
 .then(data => {
 
     medicData = parseMedicCSV(data);
-
-    loadMedicTable();
 });
 
 function parseMedicCSV(data){
@@ -272,6 +354,8 @@ function showMedicPage(){
 
     document.getElementById('medicPage')
     .style.display = 'block';
+
+    loadMedicTable();
 }
 
 function showSearchPage(){
@@ -282,6 +366,7 @@ function showSearchPage(){
     document.getElementById('medicPage')
     .style.display = 'none';
 }
+
 </script>
 
 </body>
