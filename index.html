@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Participant Search</title>
+
+<style>
+    body{
+        font-family: Arial, sans-serif;
+        background:#f2f2f2;
+        padding:20px;
+    }
+
+    .container{
+        max-width:900px;
+        margin:auto;
+        background:white;
+        padding:20px;
+        border-radius:12px;
+        box-shadow:0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2{
+        margin-bottom:20px;
+    }
+
+    input{
+        width:100%;
+        padding:12px;
+        font-size:16px;
+        border:1px solid #ccc;
+        border-radius:8px;
+        box-sizing:border-box;
+    }
+
+    table{
+        width:100%;
+        border-collapse:collapse;
+        margin-top:20px;
+    }
+
+    th, td{
+        border:1px solid #ddd;
+        padding:10px;
+        text-align:left;
+    }
+
+    th{
+        background:#f0f0f0;
+    }
+
+    .paid{
+        color:green;
+        font-weight:bold;
+    }
+
+    .unpaid{
+        color:red;
+        font-weight:bold;
+    }
+
+    @media(max-width:600px){
+
+        table{
+            font-size:14px;
+        }
+
+        th, td{
+            padding:6px;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <h2>Participant Search</h2>
+
+    <input
+        type="text"
+        id="searchInput"
+        placeholder="Search by team or participant name..."
+        onkeyup="searchData()"
+    >
+
+    <table id="resultTable">
+        <thead>
+            <tr>
+                <th>Team</th>
+                <th>Name</th>
+                <th>Sex</th>
+                <th>Paid</th>
+                <th>Remark</th>
+            </tr>
+        </thead>
+
+        <tbody></tbody>
+    </table>
+
+</div>
+
+<script>
+
+let csvData = [];
+
+fetch('data.csv')
+.then(response => response.text())
+.then(data => {
+
+    csvData = parseCSV(data);
+
+    searchData();
+});
+
+function parseCSV(data){
+
+    const lines = data.trim().split('\n');
+
+    return lines.slice(1).map(line => {
+
+        const cols = line.split(',');
+
+        return {
+            team : cols[1]?.trim(),
+            name : cols[4]?.trim(),
+            sex  : cols[5]?.trim(),
+            rem  : cols[7]?.trim(),
+            paid : cols[8]?.trim()
+        };
+    });
+}
+
+function searchData(){
+
+    const keyword =
+        document.getElementById('searchInput')
+        .value
+        .toLowerCase();
+
+    const tbody =
+        document.querySelector('#resultTable tbody');
+
+    tbody.innerHTML = '';
+
+    const filtered = csvData.filter(row =>
+
+        (row.team &&
+         row.team.toLowerCase().includes(keyword))
+
+         ||
+
+        (row.name &&
+         row.name.toLowerCase().includes(keyword))
+    );
+
+    filtered.forEach(row => {
+
+        const paidText =
+            row.paid == "1"
+            ? '<span class="paid">PAID</span>'
+            : '<span class="unpaid">UNPAID</span>';
+
+        const tr = document.createElement('tr');
+
+        tr.innerHTML = `
+            <td>${row.team || ''}</td>
+            <td>${row.name || ''}</td>
+            <td>${row.sex || ''}</td>
+            <td>${paidText}</td>
+            <td>${row.rem || ''}</td>
+        `;
+
+        tbody.appendChild(tr);
+    });
+}
+
+</script>
+
+</body>
+</html>
