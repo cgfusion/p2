@@ -89,6 +89,7 @@
     <table id="resultTable" style="display:none;">
         <thead>
             <tr>
+                <th>Team No</th>
                 <th>BIB</th>
                 <th>Team</th>
                 <th>Wil</th>
@@ -124,9 +125,10 @@ function parseCSV(data){
         const cols = line.split(',');
 
         return {
+            teamNo: cols[0]?.trim(),
             team : cols[1]?.trim(),
             bib  : cols[3]?.trim(),
-            bib  : cols[2]?.trim(),
+            wil  : cols[2]?.trim(),
             name : cols[4]?.trim(),
             sex  : cols[5]?.trim(),
             rem  : cols[7]?.trim(),
@@ -182,6 +184,7 @@ function searchData(){
         const tr = document.createElement('tr');
 
         tr.innerHTML = `
+            <td>${row.teamNo || ''}</td>
             <td>${String(row.bib).padStart(3, '0')}</td>
             <td>${row.team || ''}</td>
             <td>${row.wil || ''}</td>
