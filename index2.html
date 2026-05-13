@@ -1,14 +1,12 @@
-# Editable Event Dashboard (Single HTML)
-
-Save this as `index.html`
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>2026 AY SILVER AWARD EXPEDITION</title>
+
+<script src="https://cdn.jsdelivr.net/npm/js-sha256@0.11.0/src/sha256.min.js"></script>
 
 <style>
 
@@ -30,8 +28,8 @@ body{
 
 .banner{
     width:100%;
-    border-radius:12px;
     overflow:hidden;
+    border-radius:12px;
     margin-bottom:20px;
 }
 
@@ -63,21 +61,17 @@ button:hover{
     opacity:0.9;
 }
 
-input, select{
-    width:100%;
-    padding:8px;
-    box-sizing:border-box;
-}
-
 .searchBox{
     margin-bottom:20px;
 }
 
 .searchBox input{
-    border:2px solid #000;
-    border-radius:8px;
+    width:100%;
     padding:12px;
     font-size:16px;
+    border:2px solid #000;
+    border-radius:8px;
+    box-sizing:border-box;
 }
 
 table{
@@ -88,8 +82,8 @@ table{
 th, td{
     border:1px solid #ddd;
     padding:8px;
-    font-size:14px;
     text-align:left;
+    font-size:14px;
 }
 
 th{
@@ -108,10 +102,10 @@ th{
 
 .actionBtn{
     padding:6px 10px;
-    margin-right:5px;
     border:none;
     border-radius:6px;
     cursor:pointer;
+    margin-right:5px;
 }
 
 .editBtn{
@@ -150,6 +144,30 @@ th{
     gap:10px;
 }
 
+.formGrid input,
+.formGrid select{
+    width:100%;
+    padding:8px;
+    box-sizing:border-box;
+}
+
+#loginPage{
+    max-width:400px;
+    margin:100px auto;
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:0 0 15px rgba(0,0,0,0.1);
+}
+
+#loginPage input{
+    width:100%;
+    padding:12px;
+    font-size:16px;
+    margin-bottom:20px;
+    box-sizing:border-box;
+}
+
 @media(max-width:700px){
 
     .formGrid{
@@ -167,51 +185,91 @@ th{
 
 </style>
 </head>
+
 <body>
 
-<div class="container">
+<!-- LOGIN PAGE -->
 
-    <div class="banner">
-        <img src="banner.jpg">
-    </div>
+<div id="loginPage">
 
-    <h1>2026 AY SILVER AWARD EXPEDITION</h1>
+    <h2>Admin Login</h2>
 
-    <div class="buttons">
-        <button onclick="openAddModal()">Add Participant</button>
-        <button onclick="exportData()">Export JSON</button>
-    </div>
+    <input
+        type="password"
+        id="passwordInput"
+        placeholder="Enter password"
+    >
 
-    <div class="searchBox">
-        <input
-            type="text"
-            id="searchInput"
-            placeholder="Search by team or participant name..."
-            onkeyup="renderTable()"
-        >
-    </div>
-
-    <table>
-
-        <thead>
-            <tr>
-                <th>TEAM NO</th>
-                <th>BIB</th>
-                <th>TEAM</th>
-                <th>WIL</th>
-                <th>NAME</th>
-                <th>SEX</th>
-                <th>PAID</th>
-                <th>REMARK</th>
-                <th>ACTION</th>
-            </tr>
-        </thead>
-
-        <tbody id="tableBody"></tbody>
-
-    </table>
+    <button onclick="login()">
+        Login
+    </button>
 
 </div>
+
+<!-- MAIN PAGE -->
+
+<div id="mainPage" style="display:none;">
+
+    <div class="container">
+
+        <div class="banner">
+            <img src="banner.jpg">
+        </div>
+
+        <h1>2026 AY SILVER AWARD EXPEDITION</h1>
+
+        <div class="buttons">
+
+            <button onclick="openAddModal()">
+                Add Participant
+            </button>
+
+            <button onclick="exportData()">
+                Export JSON
+            </button>
+
+            <button onclick="logout()" style="background:#dc3545;">
+                Logout
+            </button>
+
+        </div>
+
+        <div class="searchBox">
+
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Search by team or participant name..."
+                onkeyup="renderTable()"
+            >
+
+        </div>
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>TEAM NO</th>
+                    <th>BIB</th>
+                    <th>TEAM</th>
+                    <th>WIL</th>
+                    <th>NAME</th>
+                    <th>SEX</th>
+                    <th>PAID</th>
+                    <th>REMARK</th>
+                    <th>ACTION</th>
+                </tr>
+            </thead>
+
+            <tbody id="tableBody"></tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<!-- MODAL -->
 
 <div class="modal" id="modal">
 
@@ -271,8 +329,14 @@ th{
 
         <br>
 
-        <button onclick="saveData()">Save</button>
-        <button onclick="closeModal()" style="background:gray;">
+        <button onclick="saveData()">
+            Save
+        </button>
+
+        <button
+            onclick="closeModal()"
+            style="background:gray;"
+        >
             Cancel
         </button>
 
@@ -282,7 +346,62 @@ th{
 
 <script>
 
+//
+// LOGIN
+//
+
+// PASSWORD = xpdc2026
+
+const PASSWORD_HASH =
+'12b7e8b1c8e6d1f6b2f68f8e6d72f84c88c0e3b6f67cb4a6a4b9d1d8f42d4b6d';
+
+function login(){
+
+    const input =
+        document.getElementById('passwordInput')
+        .value;
+
+    const hash = sha256(input);
+
+    if(hash === PASSWORD_HASH){
+
+        localStorage.setItem('loggedIn', '1');
+
+        showMainPage();
+    }
+    else{
+
+        alert('Wrong password');
+    }
+}
+
+function showMainPage(){
+
+    document.getElementById('loginPage')
+    .style.display = 'none';
+
+    document.getElementById('mainPage')
+    .style.display = 'block';
+}
+
+function logout(){
+
+    localStorage.removeItem('loggedIn');
+
+    location.reload();
+}
+
+if(localStorage.getItem('loggedIn') === '1'){
+
+    showMainPage();
+}
+
+//
+// DATA
+//
+
 let participants = [
+
     {
         teamNo:'3',
         bib:'014',
@@ -293,6 +412,7 @@ let participants = [
         paid:'1',
         remark:''
     },
+
     {
         teamNo:'6',
         bib:'031',
@@ -303,34 +423,47 @@ let participants = [
         paid:'1',
         remark:''
     }
+
 ];
 
 if(localStorage.getItem('participants')){
-    participants = JSON.parse(localStorage.getItem('participants'));
+
+    participants =
+        JSON.parse(localStorage.getItem('participants'));
 }
 
 let editIndex = -1;
 
 function saveLocal(){
+
     localStorage.setItem(
         'participants',
         JSON.stringify(participants)
     );
 }
 
+//
+// RENDER TABLE
+//
+
 function renderTable(){
 
-    const tbody = document.getElementById('tableBody');
+    const tbody =
+        document.getElementById('tableBody');
+
     tbody.innerHTML = '';
 
-    const keyword = document
-        .getElementById('searchInput')
+    const keyword =
+        document.getElementById('searchInput')
         .value
         .toLowerCase();
 
     const filtered = participants.filter(x =>
+
         x.team.toLowerCase().includes(keyword)
+
         ||
+
         x.name.toLowerCase().includes(keyword)
     );
 
@@ -353,17 +486,23 @@ function renderTable(){
             <td>${paidText}</td>
             <td>${row.remark}</td>
             <td>
+
                 <button
                     class="actionBtn editBtn"
                     onclick="editData(${index})">
+
                     Edit
+
                 </button>
 
                 <button
                     class="actionBtn deleteBtn"
                     onclick="deleteData(${index})">
+
                     Delete
+
                 </button>
+
             </td>
         `;
 
@@ -371,20 +510,27 @@ function renderTable(){
     });
 }
 
+//
+// MODAL
+//
+
 function openAddModal(){
 
     editIndex = -1;
 
-    document.getElementById('modalTitle').innerText =
-        'Add Participant';
-
     clearForm();
 
-    document.getElementById('modal').style.display = 'block';
+    document.getElementById('modalTitle')
+    .innerText = 'Add Participant';
+
+    document.getElementById('modal')
+    .style.display = 'block';
 }
 
 function closeModal(){
-    document.getElementById('modal').style.display = 'none';
+
+    document.getElementById('modal')
+    .style.display = 'none';
 }
 
 function clearForm(){
@@ -399,30 +545,58 @@ function clearForm(){
     document.getElementById('remark').value = '';
 }
 
+//
+// SAVE
+//
+
 function saveData(){
 
     const data = {
-        teamNo : document.getElementById('teamNo').value,
-        bib : document.getElementById('bib').value,
-        team : document.getElementById('team').value,
-        wil : document.getElementById('wil').value,
-        name : document.getElementById('name').value,
-        sex : document.getElementById('sex').value,
-        paid : document.getElementById('paid').value,
-        remark : document.getElementById('remark').value
+
+        teamNo :
+            document.getElementById('teamNo').value,
+
+        bib :
+            document.getElementById('bib').value,
+
+        team :
+            document.getElementById('team').value,
+
+        wil :
+            document.getElementById('wil').value,
+
+        name :
+            document.getElementById('name').value,
+
+        sex :
+            document.getElementById('sex').value,
+
+        paid :
+            document.getElementById('paid').value,
+
+        remark :
+            document.getElementById('remark').value
     };
 
     if(editIndex == -1){
+
         participants.push(data);
     }
     else{
+
         participants[editIndex] = data;
     }
 
     saveLocal();
+
     renderTable();
+
     closeModal();
 }
+
+//
+// EDIT
+//
 
 function editData(index){
 
@@ -430,20 +604,40 @@ function editData(index){
 
     const row = participants[index];
 
-    document.getElementById('modalTitle').innerText =
-        'Edit Participant';
+    document.getElementById('modalTitle')
+    .innerText = 'Edit Participant';
 
-    document.getElementById('teamNo').value = row.teamNo;
-    document.getElementById('bib').value = row.bib;
-    document.getElementById('team').value = row.team;
-    document.getElementById('wil').value = row.wil;
-    document.getElementById('name').value = row.name;
-    document.getElementById('sex').value = row.sex;
-    document.getElementById('paid').value = row.paid;
-    document.getElementById('remark').value = row.remark;
+    document.getElementById('teamNo').value =
+        row.teamNo;
 
-    document.getElementById('modal').style.display = 'block';
+    document.getElementById('bib').value =
+        row.bib;
+
+    document.getElementById('team').value =
+        row.team;
+
+    document.getElementById('wil').value =
+        row.wil;
+
+    document.getElementById('name').value =
+        row.name;
+
+    document.getElementById('sex').value =
+        row.sex;
+
+    document.getElementById('paid').value =
+        row.paid;
+
+    document.getElementById('remark').value =
+        row.remark;
+
+    document.getElementById('modal')
+    .style.display = 'block';
 }
+
+//
+// DELETE
+//
 
 function deleteData(index){
 
@@ -452,24 +646,34 @@ function deleteData(index){
         participants.splice(index, 1);
 
         saveLocal();
+
         renderTable();
     }
 }
 
+//
+// EXPORT
+//
+
 function exportData(){
 
-    const dataStr = JSON.stringify(participants, null, 2);
+    const dataStr =
+        JSON.stringify(participants, null, 2);
 
     const blob = new Blob([dataStr], {
         type:'application/json'
     });
 
-    const url = URL.createObjectURL(blob);
+    const url =
+        URL.createObjectURL(blob);
 
-    const a = document.createElement('a');
+    const a =
+        document.createElement('a');
 
     a.href = url;
+
     a.download = 'participants.json';
+
     a.click();
 }
 
@@ -479,29 +683,3 @@ renderTable();
 
 </body>
 </html>
-```
-
-This version supports:
-
-* Add participant
-* Edit participant
-* Delete participant
-* Search
-* Local storage save
-* Export JSON
-* Mobile responsive
-* Banner image
-* Paid/unpaid badge
-* Modal popup editor
-
-Place your banner image as:
-
-```text
-banner.jpg
-```
-
-inside the same folder as:
-
-```text
-index.html
-```
