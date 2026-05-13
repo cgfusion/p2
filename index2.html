@@ -1,0 +1,507 @@
+# Editable Event Dashboard (Single HTML)
+
+Save this as `index.html`
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 AY SILVER AWARD EXPEDITION</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background:#f0f0f0;
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:1400px;
+    margin:auto;
+    background:white;
+    border-radius:16px;
+    padding:20px;
+    box-shadow:0 0 15px rgba(0,0,0,0.1);
+}
+
+.banner{
+    width:100%;
+    border-radius:12px;
+    overflow:hidden;
+    margin-bottom:20px;
+}
+
+.banner img{
+    width:100%;
+    display:block;
+}
+
+h1{
+    margin-bottom:20px;
+}
+
+.buttons{
+    margin-bottom:20px;
+}
+
+button{
+    padding:10px 16px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#0d6efd;
+    color:white;
+    margin-right:10px;
+    margin-bottom:10px;
+}
+
+button:hover{
+    opacity:0.9;
+}
+
+input, select{
+    width:100%;
+    padding:8px;
+    box-sizing:border-box;
+}
+
+.searchBox{
+    margin-bottom:20px;
+}
+
+.searchBox input{
+    border:2px solid #000;
+    border-radius:8px;
+    padding:12px;
+    font-size:16px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th, td{
+    border:1px solid #ddd;
+    padding:8px;
+    font-size:14px;
+    text-align:left;
+}
+
+th{
+    background:#f5f5f5;
+}
+
+.paid{
+    color:green;
+    font-weight:bold;
+}
+
+.unpaid{
+    color:red;
+    font-weight:bold;
+}
+
+.actionBtn{
+    padding:6px 10px;
+    margin-right:5px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+.editBtn{
+    background:#0d6efd;
+    color:white;
+}
+
+.deleteBtn{
+    background:#dc3545;
+    color:white;
+}
+
+.modal{
+    display:none;
+    position:fixed;
+    z-index:999;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.5);
+}
+
+.modalContent{
+    background:white;
+    width:90%;
+    max-width:700px;
+    margin:40px auto;
+    padding:20px;
+    border-radius:12px;
+}
+
+.formGrid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+@media(max-width:700px){
+
+    .formGrid{
+        grid-template-columns:1fr;
+    }
+
+    table{
+        font-size:12px;
+    }
+
+    th, td{
+        padding:5px;
+    }
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="banner">
+        <img src="banner.jpg">
+    </div>
+
+    <h1>2026 AY SILVER AWARD EXPEDITION</h1>
+
+    <div class="buttons">
+        <button onclick="openAddModal()">Add Participant</button>
+        <button onclick="exportData()">Export JSON</button>
+    </div>
+
+    <div class="searchBox">
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Search by team or participant name..."
+            onkeyup="renderTable()"
+        >
+    </div>
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>TEAM NO</th>
+                <th>BIB</th>
+                <th>TEAM</th>
+                <th>WIL</th>
+                <th>NAME</th>
+                <th>SEX</th>
+                <th>PAID</th>
+                <th>REMARK</th>
+                <th>ACTION</th>
+            </tr>
+        </thead>
+
+        <tbody id="tableBody"></tbody>
+
+    </table>
+
+</div>
+
+<div class="modal" id="modal">
+
+    <div class="modalContent">
+
+        <h2 id="modalTitle">Add Participant</h2>
+
+        <div class="formGrid">
+
+            <div>
+                <label>Team No</label>
+                <input type="text" id="teamNo">
+            </div>
+
+            <div>
+                <label>BIB</label>
+                <input type="text" id="bib">
+            </div>
+
+            <div>
+                <label>Team</label>
+                <input type="text" id="team">
+            </div>
+
+            <div>
+                <label>WIL</label>
+                <input type="text" id="wil">
+            </div>
+
+            <div>
+                <label>Name</label>
+                <input type="text" id="name">
+            </div>
+
+            <div>
+                <label>Sex</label>
+                <select id="sex">
+                    <option value="L">L</option>
+                    <option value="P">P</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Paid</label>
+                <select id="paid">
+                    <option value="1">PAID</option>
+                    <option value="0">UNPAID</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Remark</label>
+                <input type="text" id="remark">
+            </div>
+
+        </div>
+
+        <br>
+
+        <button onclick="saveData()">Save</button>
+        <button onclick="closeModal()" style="background:gray;">
+            Cancel
+        </button>
+
+    </div>
+
+</div>
+
+<script>
+
+let participants = [
+    {
+        teamNo:'3',
+        bib:'014',
+        team:'Capybara',
+        wil:'W1',
+        name:'CHELSEA JOEANN BANIONG',
+        sex:'P',
+        paid:'1',
+        remark:''
+    },
+    {
+        teamNo:'6',
+        bib:'031',
+        team:'RINUKUT TRAILBLAZERS',
+        wil:'W2',
+        name:'DISECA BINTI JONATAN',
+        sex:'P',
+        paid:'1',
+        remark:''
+    }
+];
+
+if(localStorage.getItem('participants')){
+    participants = JSON.parse(localStorage.getItem('participants'));
+}
+
+let editIndex = -1;
+
+function saveLocal(){
+    localStorage.setItem(
+        'participants',
+        JSON.stringify(participants)
+    );
+}
+
+function renderTable(){
+
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
+
+    const keyword = document
+        .getElementById('searchInput')
+        .value
+        .toLowerCase();
+
+    const filtered = participants.filter(x =>
+        x.team.toLowerCase().includes(keyword)
+        ||
+        x.name.toLowerCase().includes(keyword)
+    );
+
+    filtered.forEach((row, index) => {
+
+        const paidText =
+            row.paid == '1'
+            ? '<span class="paid">PAID</span>'
+            : '<span class="unpaid">UNPAID</span>';
+
+        const tr = document.createElement('tr');
+
+        tr.innerHTML = `
+            <td>${row.teamNo}</td>
+            <td>${row.bib}</td>
+            <td>${row.team}</td>
+            <td>${row.wil}</td>
+            <td>${row.name}</td>
+            <td>${row.sex}</td>
+            <td>${paidText}</td>
+            <td>${row.remark}</td>
+            <td>
+                <button
+                    class="actionBtn editBtn"
+                    onclick="editData(${index})">
+                    Edit
+                </button>
+
+                <button
+                    class="actionBtn deleteBtn"
+                    onclick="deleteData(${index})">
+                    Delete
+                </button>
+            </td>
+        `;
+
+        tbody.appendChild(tr);
+    });
+}
+
+function openAddModal(){
+
+    editIndex = -1;
+
+    document.getElementById('modalTitle').innerText =
+        'Add Participant';
+
+    clearForm();
+
+    document.getElementById('modal').style.display = 'block';
+}
+
+function closeModal(){
+    document.getElementById('modal').style.display = 'none';
+}
+
+function clearForm(){
+
+    document.getElementById('teamNo').value = '';
+    document.getElementById('bib').value = '';
+    document.getElementById('team').value = '';
+    document.getElementById('wil').value = '';
+    document.getElementById('name').value = '';
+    document.getElementById('sex').value = 'L';
+    document.getElementById('paid').value = '1';
+    document.getElementById('remark').value = '';
+}
+
+function saveData(){
+
+    const data = {
+        teamNo : document.getElementById('teamNo').value,
+        bib : document.getElementById('bib').value,
+        team : document.getElementById('team').value,
+        wil : document.getElementById('wil').value,
+        name : document.getElementById('name').value,
+        sex : document.getElementById('sex').value,
+        paid : document.getElementById('paid').value,
+        remark : document.getElementById('remark').value
+    };
+
+    if(editIndex == -1){
+        participants.push(data);
+    }
+    else{
+        participants[editIndex] = data;
+    }
+
+    saveLocal();
+    renderTable();
+    closeModal();
+}
+
+function editData(index){
+
+    editIndex = index;
+
+    const row = participants[index];
+
+    document.getElementById('modalTitle').innerText =
+        'Edit Participant';
+
+    document.getElementById('teamNo').value = row.teamNo;
+    document.getElementById('bib').value = row.bib;
+    document.getElementById('team').value = row.team;
+    document.getElementById('wil').value = row.wil;
+    document.getElementById('name').value = row.name;
+    document.getElementById('sex').value = row.sex;
+    document.getElementById('paid').value = row.paid;
+    document.getElementById('remark').value = row.remark;
+
+    document.getElementById('modal').style.display = 'block';
+}
+
+function deleteData(index){
+
+    if(confirm('Delete this participant?')){
+
+        participants.splice(index, 1);
+
+        saveLocal();
+        renderTable();
+    }
+}
+
+function exportData(){
+
+    const dataStr = JSON.stringify(participants, null, 2);
+
+    const blob = new Blob([dataStr], {
+        type:'application/json'
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+
+    a.href = url;
+    a.download = 'participants.json';
+    a.click();
+}
+
+renderTable();
+
+</script>
+
+</body>
+</html>
+```
+
+This version supports:
+
+* Add participant
+* Edit participant
+* Delete participant
+* Search
+* Local storage save
+* Export JSON
+* Mobile responsive
+* Banner image
+* Paid/unpaid badge
+* Modal popup editor
+
+Place your banner image as:
+
+```text
+banner.jpg
+```
+
+inside the same folder as:
+
+```text
+index.html
+```
