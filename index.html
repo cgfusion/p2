@@ -103,6 +103,16 @@ th{
     font-weight:bold;
 }
 
+.tableWrapper{
+    width:100%;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+}
+
+table{
+    min-width:900px;
+}    
+
 @media(max-width:700px){
 
     body{
@@ -166,6 +176,7 @@ th{
             onkeyup="searchData()"
         >
 
+<div class="tableWrapper">
         <table id="resultTable" style="display:none;">
 
             <thead>
@@ -184,7 +195,7 @@ th{
             <tbody></tbody>
 
         </table>
-
+    </div>
     </div>
 
     <!-- MEDIC PAGE -->
