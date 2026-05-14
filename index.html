@@ -291,6 +291,13 @@ function searchData(){
 
         (row.name &&
         row.name.toLowerCase().includes(keyword))
+        
+        ||
+        
+        (row.teamNo &&
+        row.teamNo.toLowerCase().includes(keyword))
+
+                                    
     );
 
     if(filtered.length === 0){
