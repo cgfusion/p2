@@ -282,23 +282,31 @@ function searchData(){
         return;
     }
 
-    const filtered = csvData.filter(row =>
+    let filtered = [];
 
-        (row.team &&
-        row.team.toLowerCase().includes(keyword))
-
-        ||
-
-        (row.name &&
-        row.name.toLowerCase().includes(keyword))
-        
-        ||
-        
-        (row.teamNo &&
-        row.teamNo.toLowerCase().includes(keyword))
-
-                                    
-    );
+    if (keyword=='*' || keyword=='all'){
+        filtered = csvData;
+    }
+    else{
+    
+        filtered = csvData.filter(row =>
+    
+            (row.team &&
+            row.team.toLowerCase().includes(keyword))
+    
+            ||
+    
+            (row.name &&
+            row.name.toLowerCase().includes(keyword))
+            
+            ||
+            
+            (row.teamNo &&
+            row.teamNo.toLowerCase().includes(keyword))
+    
+                                        
+        );
+    }
 
     if(filtered.length === 0){
 
